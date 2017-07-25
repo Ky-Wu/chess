@@ -3,11 +3,10 @@ class Board
   def initialize
     @grid = []
     64.times { @grid << " "}
-    setup_board
     @current_color = :w
   end
 
-  def setup_board
+  def setup
     (0..7).each do |num|
       replace_square([num, 1], Pawn.new(:b, [num, 1]))
       replace_square([num, 6], Pawn.new(:w, [num, 6]))

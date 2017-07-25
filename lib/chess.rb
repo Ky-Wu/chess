@@ -1,6 +1,7 @@
 class Chess
   def initialize
     @board = Board.new()
+    @board.setup
     @captured_white_pieces = []
     @captured_black_pieces = []
     @playing = true
@@ -48,7 +49,7 @@ class Chess
     end_square = @board.square(end_coords)
     capture(end_square) if end_square.is_a?(Piece)
     if end_square.is_a?(King)
-        @playing = false
+      @playing = false
     elsif moving_piece.is_a?(Pawn)
       #Capture the passed piece if the pawn is performing an en passant
       check_en_passant_move(moving_piece, end_coords)
@@ -62,7 +63,8 @@ class Chess
       end
       #Restrict pawn moves to eliminate en passants after 1 turn
       restricted_pawns = restrict_pawn_moves(enabled_pieces)
-
+    else
+      move_to(moving_piece, end_coords)
     end
 
   end
@@ -148,7 +150,8 @@ class Chess
   end
 
   def game_over(color)
-    player = color == :w ? "White" : "Black"
+    #If a player begins their turn without a king, their opponent has won.
+    player = color == :b ? "White" : "Black"
     puts "#{player} won!"
   end
 

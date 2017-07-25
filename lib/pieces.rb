@@ -112,16 +112,17 @@ end
 
 class Knight < Piece
   def possible_moves
+    moves = []
     changes = [[1,2],[-1,2],[1,-2],[-1,-2],[2,1],[-2,1],[2,-1],[-2,-1]]
     changes.each do |change|
       move = add_coordinates(change, @coordinates)
       if valid_coordinate?(move)
-        s = board.square(move)
+        s = @board.square(move)
         next if s.is_a?(Piece) && s.color == @board.current_color
-        possible_moves << move
+        moves << move
       end
     end
-    possible_moves
+    moves
   end
 
   def symbol
@@ -154,12 +155,17 @@ end
 
 class King < Piece
   def possible_moves
+    moves = []
     changes = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]]
     changes.each do |change|
       move = add_coordinates(change, @coordinates)
-      possible_moves << move if valid_coordinate?(move)
+      if valid_coordinate?(move)
+        s = @board.square(move)
+        next if s.is_a?(Piece) && s.color == @board.current_color
+        moves << move
+      end
     end
-    possible_moves
+    moves
   end
 
   def symbol
