@@ -118,7 +118,7 @@ class Knight < Piece
       move = add_coordinates(change, @coordinates)
       if valid_coordinate?(move)
         s = @board.square(move)
-        next if s.is_a?(Piece) && s.color == @board.current_color
+        next if s.is_a?(Piece) && s.color == @color
         moves << move
       end
     end
@@ -161,7 +161,7 @@ class King < Piece
       move = add_coordinates(change, @coordinates)
       if valid_coordinate?(move)
         s = @board.square(move)
-        next if s.is_a?(Piece) && s.color == @board.current_color
+        next if s.is_a?(Piece) && s.color == @color
         moves << move
       end
     end

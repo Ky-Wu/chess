@@ -68,7 +68,7 @@ class Chess
       move_to(moving_piece, end_coords)
     end
     if check?(moving_piece)
-      puts "#{current_player} puts the opponent's king in check!"
+      puts "#{current_player_s} puts the opponent's king in check!"
     end
   end
 
@@ -136,7 +136,7 @@ class Chess
   def select_square
     puts "Please input coordinates to select a square with your piece."
     puts "Format: Horizontal #, Vertical #."
-    puts "Current color: #{current_player}"
+    puts "Current color: #{current_player_s}"
     while input = gets.chomp
       coordinates = input.scan(/[0-7]/)
       if coordinates.length == 2
@@ -152,7 +152,7 @@ class Chess
     end
   end
 
-  def current_player
+  def current_player_s
     if @board.current_color == :w
       "White"
     else
@@ -165,9 +165,26 @@ class Chess
     player = color == :b ? "White" : "Black"
     puts "#{player} won!"
   end
-
+#Piece = the piece that threatens check or checkmate
   def checkmate?
-    false
+    if @board.current_color == :w
+      enemy_king = @board.black_king
+    else
+      enemy_king = @board.white_king
+    end
+    king_moves = [enemy_king.coordinates] + enemy_king.possible_moves
+    @board.grid.each do |square|
+      if square.is_a?(Piece) && square.color == @board.current_color &&
+        !king_moves.include?(square.coordinates)
+        king_moves -= square.possible_moves
+      end
+    end
+    if king_moves.empty?
+      puts "#{current_player_s} has won through checkmating their opponent!"
+      true
+    else
+      false
+    end
   end
 
   def check?(piece)
