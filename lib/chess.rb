@@ -11,6 +11,7 @@ class Chess
     while @playing
       @board.display
       get_move
+      @playing = false if checkmate?
       @board.switch_colors
     end
     game_over(@board.current_color)
@@ -66,7 +67,9 @@ class Chess
     else
       move_to(moving_piece, end_coords)
     end
-
+    if check?(moving_piece)
+      puts "#{current_player} puts the opponent's king in check!"
+    end 
   end
 
   def restrict_pawn_moves(exceptions)
@@ -133,7 +136,7 @@ class Chess
   def select_square
     puts "Please input coordinates to select a square with your piece."
     puts "Format: Horizontal #, Vertical #."
-    puts "Current color: #{@board.current_color.to_s.upcase}"
+    puts "Current color: #{current_player}"
     while input = gets.chomp
       coordinates = input.scan(/[0-7]/)
       if coordinates.length == 2
@@ -149,10 +152,24 @@ class Chess
     end
   end
 
+  def current_player
+    if @board.current_color == :w
+      "White"
+    else
+      "Black"
+    end
+  end
+
   def game_over(color)
     #If a player begins their turn without a king, their opponent has won.
     player = color == :b ? "White" : "Black"
     puts "#{player} won!"
+  end
+
+  def checkmate?
+  end
+
+  def check?(piece)
   end
 
   def draw_game

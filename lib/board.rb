@@ -1,5 +1,5 @@
 class Board
-  attr_accessor :grid, :current_color
+  attr_accessor :grid, :current_color, :black_king, :white_king
   def initialize
     @grid = []
     64.times { @grid << " "}
