@@ -11,7 +11,6 @@ class Chess
     while @playing
       @board.display
       get_move
-      @playing = false if checkmate?
       @board.switch_colors
     end
     game_over(@board.current_color)
@@ -67,9 +66,7 @@ class Chess
     else
       move_to(moving_piece, end_coords)
     end
-    if check?(moving_piece)
-      puts "#{current_player_s} puts the opponent's king in check!"
-    end
+    print_king_status(moving_piece)
   end
 
   def restrict_pawn_moves(exceptions)
@@ -180,7 +177,7 @@ class Chess
       end
     end
     if king_moves.empty?
-      puts "#{current_player_s} has won through checkmating their opponent!"
+
       true
     else
       false
@@ -190,6 +187,15 @@ class Chess
   def check?(piece)
     enemy_king = piece.color == :w ? @board.black_king : @board.white_king
     piece.possible_moves.include?(enemy_king.coordinates)
+  end
+
+  def print_king_status(moved_piece)
+    if checkmate?
+      puts "#{current_player_s} has won through checkmating their opponent!"
+      @playing = false
+    elsif check?(moved_piece)
+      puts "#{current_player_s} puts the opponent's king in check!"
+    end
   end
 
   def draw_game
