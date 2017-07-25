@@ -69,7 +69,7 @@ class Chess
     end
     if check?(moving_piece)
       puts "#{current_player} puts the opponent's king in check!"
-    end 
+    end
   end
 
   def restrict_pawn_moves(exceptions)
@@ -167,9 +167,12 @@ class Chess
   end
 
   def checkmate?
+    false
   end
 
   def check?(piece)
+    enemy_king = piece.color == :w ? @board.black_king : @board.white_king
+    piece.possible_moves.include?(enemy_king.coordinates)
   end
 
   def draw_game
