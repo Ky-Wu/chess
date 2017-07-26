@@ -53,6 +53,7 @@ class Chess
     @captured_white_pieces = []
     @captured_black_pieces = []
     @playing = true
+    @draw = false
   end
 
   def play
@@ -64,17 +65,69 @@ class Chess
     game_over(@board.current_color)
   end
 
+  def options(moving_piece = nil)
+    unless moving_piece.nil?
+      info = [moving_piece.coordinates, moving_piece.possible_moves]
+    else
+      info = []
+    end
+    ["-Enter coordinates of the square where you want to move to.",
+    "---Square being moved: #{info[0]}",
+    "---Valid moves: #{info[1]}",
+    "-Enter \"back\" to go back to selecting a square to move.",
+    "-Enter \"concede\" to surrender the win to your opponent.",
+    "-Enter \"save\" to save your game to the local save file.",
+    "-Enter \"draw\" to declare a draw.",
+    "---Make sure both players agree on a draw before declaring one.",
+    "-Enter \"exit\" to quit this game (without saving)."]
+  end
+
+  def select_square
+    puts "Current color: #{current_player_s}"
+    puts "\nOptions:\n"
+    puts "-Input coordinates to select a piece with your color."
+    puts "Format: Horizontal #, Vertical #."
+    puts options[4..8]
+    while input = gets.chomp
+      coordinates = input.scan(/[0-7]/)
+      if coordinates.length == 2
+        coordinates.map! {|num| num.to_i}
+        if @board.square(coordinates).is_a?(Piece) &&
+           @board.square(coordinates).color == @board.current_color
+           return coordinates
+           break
+        end
+      else
+        case input
+        when 'concede'
+          @playing = false
+          @board.switch_colors
+          return nil
+        when 'save'
+          save
+          puts "Saved! Continue on."
+        when "draw"
+          puts "#{current_player_s} has declared a draw."
+          @playing = false
+          @draw = true
+          return nil
+        when "exit"
+          exit
+        else
+          puts "Please use the format: H#, V#,"\
+              "to select a piece with the current color or type another option."
+        end
+      end
+    end
+  end
+
   def get_move
     moving_piece_coords = select_square
+    return if moving_piece_coords.nil?
     moving_piece = @board.square(moving_piece_coords)
-    puts "Options:"
-    puts "-Enter coordinates of the square where you want to move to."
-    puts "---Square being moved: #{moving_piece_coords}"
-    puts "---Valid moves: #{moving_piece.possible_moves}"
-    puts "-Enter \"back\" to go back to selecting a square to move."
-    puts "-Enter \"concede\" to surrender the win to your opponent."
-    puts "-Enter \"save\" to save your game to the local save file."
-    while input = gets.chomp
+    puts "\nOptions:"
+    options(moving_piece).each {|line| puts line}
+    while input = gets.chomp.downcase
       puts "\n____________________________________________________\n\n"
       coords = input.scan(/[0-7]/)
       # If the input contains two integers for coordinates
@@ -84,21 +137,30 @@ class Chess
           make_move(moving_piece_coords, coords)
           break
         end
-      elsif input.downcase == 'back'
-        @board.display
-        # Go back to the beginning of this method
-        get_move
-        break
-      elsif input.downcase == 'concede'
-        @playing = false
-        @board.switch_colors
-        break
-      elsif input.downcase == 'save'
-        save
-        puts "Saved!"
       else
-        puts "Not valid input. Please make a valid move or enter \"back\"."
+        case input
+        when 'back'
+          @board.display
+          # Go back to the beginning of this method
+          get_move
+          break
+        when 'concede'
+          @playing = false
+          @board.switch_colors
+          break
+        when 'save'
+          save
+          puts "Saved! Continue on."
+        when "draw"
+          puts "#{current_player_s} has declared a draw."
+          @playing = false
+          @draw = true
+          break
+        else
+          puts "Not valid input. Please make a valid move or enter \"back\"."
+        end
       end
+
     end
   end
 
@@ -212,25 +274,6 @@ class Chess
     @board.replace_square(piece.coordinates, " ")
   end
 
-  def select_square
-    puts "Please input coordinates to select a square with your piece."
-    puts "Format: Horizontal #, Vertical #."
-    puts "Current color: #{current_player_s}"
-    while input = gets.chomp
-      coordinates = input.scan(/[0-7]/)
-      if coordinates.length == 2
-        coordinates.map! {|num| num.to_i}
-        if @board.square(coordinates).is_a?(Piece) &&
-           @board.square(coordinates).color == @board.current_color
-           return coordinates
-           break
-        end
-      end
-      puts "Please use the format: H#, V#,"\
-           "to select a square with the current color."
-    end
-  end
-
   def current_player_s
     if @board.current_color == "w"
       "White"
@@ -242,7 +285,11 @@ class Chess
   def game_over(color)
     #If a player begins their turn without a king, their opponent has won.
     player = color == "b" ? "White" : "Black"
-    puts "#{player} won!"
+    if @draw
+      puts "This game ended in a tie."
+    else
+      puts "#{player} won!"
+    end
   end
 #Piece = the piece that threatens check or checkmate
   def checkmate?
@@ -301,9 +348,6 @@ class Chess
     elsif check?(moved_piece)
       puts "#{current_player_s} puts the opponent's king in check!"
     end
-  end
-
-  def draw_game
   end
 
 end

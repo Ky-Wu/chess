@@ -2,6 +2,7 @@ require './chess.rb'
 class Piece
   include BasicSerializable
   attr_accessor :color, :coordinates
+  
   def initialize(color, coordinates)
     @color = color
     @coordinates = coordinates
