@@ -1,4 +1,52 @@
+require 'json'
+module BasicSerializable
+  @@serializer = JSON
+  def serialize
+    obj = {}
+    instance_variables.map do |var|
+      obj[var] = instance_variable_get(var)
+    end
+    @@serializer.dump obj
+  end
+  def unserialize(string)
+    obj = @@serializer.parse(string)
+    obj.keys.each do |key|
+      instance_variable_set(key, obj[key])
+    end
+  end
+end
+
 class Chess
+  include BasicSerializable
+
+  def unserialize(string)
+    obj = @@serializer.parse(string)
+    obj.each do |var, var_string|
+      if key == :@board
+        @board = Board.new()
+        @board.unserialize(var_string)
+        @board.load
+      else
+      instance_variable_set(var, var_string)
+      end
+    end
+  end
+
+  def serialize
+    obj = {}
+    instance_variables.map do |var|
+      if instance_variable_get(var).is_a?(Board)
+        obj[var] = instance_variable_get(var).serialize
+      elsif instance_variable_get(var).is_a?(Array)
+        obj[var] = instance_variable_get(var).map {|n| n.serialize }
+      else
+        obj[var] = instance_variable_get(var)
+      end
+    end
+    @@serializer.dump obj
+  end
+
+
   def initialize
     @board = Board.new()
     @board.setup
@@ -25,6 +73,7 @@ class Chess
     puts "---Valid moves: #{moving_piece.possible_moves}"
     puts "-Enter \"back\" to go back to selecting a square to move."
     puts "-Enter \"concede\" to surrender the win to your opponent."
+    puts "-Enter \"save\" to save your game to the local save file."
     while input = gets.chomp
       puts "\n____________________________________________________\n\n"
       coords = input.scan(/[0-7]/)
@@ -44,11 +93,24 @@ class Chess
         @playing = false
         @board.switch_colors
         break
+      elsif input.downcase == 'save'
+        save
+        puts "Saved!"
       else
         puts "Not valid input. Please make a valid move or enter \"back\"."
       end
     end
   end
+
+  def save
+    File.open("../save/save_file.json", "w") { |file| file.puts serialize }
+  end
+
+  def load
+    save_file = File.open("../save/save_file.json").readline
+    unserialize(save_file)
+  end
+
 
   def make_move(start_coords, end_coords)
     moving_piece = @board.square(start_coords)
