@@ -19,12 +19,14 @@ class Chess
   def get_move
     moving_piece_coords = select_square
     moving_piece = @board.square(moving_piece_coords)
-    puts "Please do one of the following:"
+    puts "Options:"
     puts "-Enter coordinates of the square where you want to move to."
     puts "---Square being moved: #{moving_piece_coords}"
     puts "---Valid moves: #{moving_piece.possible_moves}"
     puts "-Enter \"back\" to go back to selecting a square to move."
+    puts "-Enter \"concede\" to surrender the win to your opponent."
     while input = gets.chomp
+      puts "\n____________________________________________________\n\n"
       coords = input.scan(/[0-7]/)
       # If the input contains two integers for coordinates
       if coords.length == 2
@@ -38,6 +40,10 @@ class Chess
         # Go back to the beginning of this method
         get_move
         break
+      elsif input.downcase == 'concede'
+        @playing = false
+        @board.switch_colors
+        break
       else
         puts "Not valid input. Please make a valid move or enter \"back\"."
       end
@@ -48,9 +54,7 @@ class Chess
     moving_piece = @board.square(start_coords)
     end_square = @board.square(end_coords)
     capture(end_square) if end_square.is_a?(Piece)
-    if end_square.is_a?(King)
-      @playing = false
-    elsif moving_piece.is_a?(Pawn)
+    if moving_piece.is_a?(Pawn)
       #Capture the passed piece if the pawn is performing an en passant
       check_en_passant_move(moving_piece, end_coords)
       #Then move the Pawn to the square
@@ -63,10 +67,20 @@ class Chess
       end
       #Restrict pawn moves to eliminate en passants after 1 turn
       restricted_pawns = restrict_pawn_moves(enabled_pieces)
+    elsif moving_piece.is_a?(King)
+      move_to(moving_piece, end_coords)
+      unless piece_unattackable?(moving_piece)
+        puts "#{current_player_s} put their own King into check!"
+      end
     else
       move_to(moving_piece, end_coords)
     end
-    print_king_status(moving_piece)
+    if end_square.is_a?(King)
+      @playing = false
+      @board.display
+    else
+      print_king_status(moving_piece)
+    end
   end
 
   def restrict_pawn_moves(exceptions)
@@ -164,34 +178,57 @@ class Chess
   end
 #Piece = the piece that threatens check or checkmate
   def checkmate?
-    if @board.current_color == :w
-      enemy_king = @board.black_king
-    else
-      enemy_king = @board.white_king
-    end
-    king_moves = [enemy_king.coordinates] + enemy_king.possible_moves
-    @board.grid.each do |square|
-      if square.is_a?(Piece) && square.color == @board.current_color &&
-        !king_moves.include?(square.coordinates)
-        king_moves -= square.possible_moves
+    friendly_pieces = friendly_pieces(@board.current_color)
+    enemy_pieces = friendly_pieces(@board.opposite_color)
+    checkmate = false
+    king_moves = enemy_king.possible_moves
+    king_must_move = false
+    friendly_pieces.each do |piece|
+      if check?(piece, enemy_king.coordinates) && piece_unattackable?(piece)
+        king_must_move = true
+        break
       end
     end
-    if king_moves.empty?
+    return false unless king_must_move
+  #This means that the opponent must move their king next turn.
+  #If the king has no safe spaces to move to, checkmate.
+    king_moves.each do |s_coords|
+      friendly_pieces.each do |f_piece|
+        #In other words, if that square is under attack by the friendly piece
+        king_moves -= f_piece.possible_moves
+      end
+    end
+    king_moves.empty? ? true : false
+  end
 
-      true
-    else
-      false
+  def friendly_pieces(color)
+    friendly_pieces = []
+    @board.grid.each do |square|
+      if square.is_a?(Piece) && square.color == color
+        friendly_pieces << square
+      end
+    end
+    friendly_pieces
+  end
+
+  def piece_unattackable?(piece)
+    enemy_pieces = friendly_pieces(@board.opposite_color)
+    enemy_pieces.none? do |enemy_piece|
+      enemy_piece.possible_moves.include?(piece.coordinates)
     end
   end
 
-  def check?(piece)
-    enemy_king = piece.color == :w ? @board.black_king : @board.white_king
-    piece.possible_moves.include?(enemy_king.coordinates)
+  def check?(piece, king_coordinates = enemy_king.coordinates)
+    piece.possible_moves.include?(king_coordinates)
+  end
+
+  def enemy_king
+    @board.current_color == :w ? @board.black_king : @board.white_king
   end
 
   def print_king_status(moved_piece)
     if checkmate?
-      puts "#{current_player_s} has won through checkmating their opponent!"
+      puts "#{current_player_s} has checkmated their opponent!"
       @playing = false
     elsif check?(moved_piece)
       puts "#{current_player_s} puts the opponent's king in check!"
