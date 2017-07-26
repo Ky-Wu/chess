@@ -1,8 +1,19 @@
+require './chess.rb'
 class Piece
+  include BasicSerializable
   attr_accessor :color, :coordinates
   def initialize(color, coordinates)
     @color = color
     @coordinates = coordinates
+  end
+
+  def serialize
+    obj = {}
+    instance_variables.map do |var|
+      next if var == "@board"
+      obj[var] = instance_variable_get(var)
+    end
+    @@serializer.dump obj
   end
 
   def link_board(board)
@@ -48,7 +59,7 @@ class Pawn < Piece
   attr_accessor :coordinate_changes
   def initialize(color, coordinates)
     super(color, coordinates)
-    @coordinate_changes = @color == :w ? [[0,-1], [0, -2]] : [[0,1], [0,2]]
+    @coordinate_changes = @color == "w" ? [[0,-1], [0, -2]] : [[0,1], [0,2]]
   end
 
   def possible_moves
@@ -62,7 +73,7 @@ class Pawn < Piece
   end
 
   def check_diagonal_moves
-    diagonal_changes = @color == :w ? [[1,-1],[-1,-1]] : [[1,1],[-1,1]]
+    diagonal_changes = @color == "w" ? [[1,-1],[-1,-1]] : [[1,1],[-1,1]]
     diagonal_changes.each do |change|
       diagonal_coord = add_coordinates(change, @coordinates)
       diagonal_square = @board.square(diagonal_coord)
@@ -74,7 +85,7 @@ class Pawn < Piece
   end
 
   def enable_en_passant(left_or_right)
-    diagonal_changes = @color == :w ? [[1,-1],[-1,-1]] : [[1,1],[-1,1]]
+    diagonal_changes = @color == "w" ? [[1,-1],[-1,-1]] : [[1,1],[-1,1]]
     if left_or_right == :l
       @coordinate_changes << diagonal_changes[1]
     else
@@ -83,11 +94,11 @@ class Pawn < Piece
   end
 
   def restrict_moves
-    @coordinate_changes = @color == :w ? [[0,-1]] : [[0,1]]
+    @coordinate_changes = @color == "w" ? [[0,-1]] : [[0,1]]
   end
 
   def symbol
-    @color == :w ? "\u2659" : "\u265F"
+    @color == "w" ? "\u2659" : "\u265F"
   end
 
   def not_moved?
@@ -97,7 +108,7 @@ class Pawn < Piece
   end
 
   def eighth_rank?
-    eighth_rank = @color == :w ? 0 : 7
+    eighth_rank = @color == "w" ? 0 : 7
     @coordinates[1] == eighth_rank
   end
 end
@@ -110,7 +121,7 @@ class Rook < Piece
   end
 
   def symbol
-    @color == :w ? "\u2656" : "\u265C"
+    @color == "w" ? "\u2656" : "\u265C"
   end
 
 end
@@ -131,7 +142,7 @@ class Knight < Piece
   end
 
   def symbol
-    @color == :w ? "\u2658" : "\u265E"
+    @color == "w" ? "\u2658" : "\u265E"
   end
 
 end
@@ -143,7 +154,7 @@ class Bishop < Piece
   end
 
   def symbol
-    @color == :w ? "\u2657" : "\u265D"
+    @color == "w" ? "\u2657" : "\u265D"
   end
 end
 
@@ -154,7 +165,7 @@ class Queen < Piece
   end
 
   def symbol
-    @color == :w ? "\u2655" : "\u265B"
+    @color == "w" ? "\u2655" : "\u265B"
   end
 end
 
@@ -174,7 +185,7 @@ class King < Piece
   end
 
   def symbol
-    @color == :w ? "\u2654" : "\u265A"
+    @color == "w" ? "\u2654" : "\u265A"
   end
 end
 
