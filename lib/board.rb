@@ -56,7 +56,7 @@ class Board
       if var == :@pieces
         pieces = {}
         instance_variable_get(var).each do |piece|
-          pieces["\"#{piece}\""] = piece.serialize
+          pieces[piece] = piece.serialize
         end
         obj[var] = pieces
       else
