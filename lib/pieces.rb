@@ -95,6 +95,11 @@ class Pawn < Piece
       c.include?(2) || c.include?(-2)
     end
   end
+
+  def eighth_rank?
+    eighth_rank = @color == :w ? 0 : 7
+    @coordinates[1] == eighth_rank
+  end
 end
 
 class Rook < Piece

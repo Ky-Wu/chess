@@ -62,11 +62,10 @@ class Chess
       #Check to see if the pawn is enabling en passants
       enabled_pieces = enable_possible_enpassants(moving_piece)
       #The pawn has made a move; it's lost its initial double move
-      if moving_piece.not_moved?
-        moving_piece.restrict_moves
-      end
+      moving_piece.restrict_moves if moving_piece.not_moved?
       #Restrict pawn moves to eliminate en passants after 1 turn
       restricted_pawns = restrict_pawn_moves(enabled_pieces)
+      promote(moving_piece) if moving_piece.eighth_rank?
     elsif moving_piece.is_a?(King)
       move_to(moving_piece, end_coords)
       unless piece_unattackable?(moving_piece)
@@ -81,6 +80,13 @@ class Chess
     else
       print_king_status(moving_piece)
     end
+  end
+
+  def promote(pawn)
+    pawn_coords = pawn.coordinates
+    queen = Queen.new(pawn.color, pawn_coords)
+    @board.replace_square(pawn_coords, queen)
+    queen.link_board(@board)
   end
 
   def restrict_pawn_moves(exceptions)
