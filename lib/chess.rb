@@ -22,7 +22,7 @@ class Chess
   def unserialize(string)
     obj = @@serializer.parse(string)
     obj.each do |var, var_string|
-      if key == :@board
+      if var == "@board"
         @board = Board.new()
         @board.unserialize(var_string)
         @board.load
@@ -169,7 +169,7 @@ class Chess
 
   def check_en_passant_move(pawn, end_coords)
     #Find the direction of the en passant based on the pawn's color
-    passed_square_change = pawn.color == :w ? [0, 1] : [0, -1]
+    passed_square_change = pawn.color == "w" ? [0, 1] : [0, -1]
     passed_square_coords = add_coordinates(end_coords, passed_square_change)
     #If coordinates are invalid, stop before passing it to the method
     coord_validity = passed_square_coords.all? {|num| (0..7).include?(num) }
@@ -183,7 +183,7 @@ class Chess
   def enable_possible_enpassants(pawn)
     enabled_pieces = []
     #Break unless the pawn can move two squares, meaning it hasn't moved yet
-    en_passant_row = pawn.color == :w ? 4 : 3
+    en_passant_row = pawn.color == "w" ? 4 : 3
     #Stops from enabling fraud E.Ps if the pawn moves forward one square
     if pawn.coordinates[1] == en_passant_row &&
     pawn.coordinate_changes.any? {|c| c.include?(2) || c.include?(-2)  }
@@ -204,7 +204,7 @@ class Chess
   end
 
   def capture(piece)
-    if piece.color == :w
+    if piece.color == "w"
       @captured_white_pieces << piece
     else
       @captured_black_pieces << piece
@@ -232,7 +232,7 @@ class Chess
   end
 
   def current_player_s
-    if @board.current_color == :w
+    if @board.current_color == "w"
       "White"
     else
       "Black"
@@ -241,7 +241,7 @@ class Chess
 
   def game_over(color)
     #If a player begins their turn without a king, their opponent has won.
-    player = color == :b ? "White" : "Black"
+    player = color == "b" ? "White" : "Black"
     puts "#{player} won!"
   end
 #Piece = the piece that threatens check or checkmate
@@ -291,7 +291,7 @@ class Chess
   end
 
   def enemy_king
-    @board.current_color == :w ? @board.black_king : @board.white_king
+    @board.current_color == "w" ? @board.black_king : @board.white_king
   end
 
   def print_king_status(moved_piece)
