@@ -24,6 +24,7 @@ describe "Pieces" do
     context "with a black pawn at [0,0]" do
       it "includes [0,1]" do
         black_pawn = Pawn.new(:b, [0,0])
+        black_pawn.link_board(Board.new)
         expect(black_pawn.possible_moves).to include([0,1])
       end
     end
