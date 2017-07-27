@@ -9,8 +9,8 @@ describe "#add_coordinates" do
     end
   end
 end
-describe "Pieces" do
 
+describe "Pieces" do
   describe "#symbol" do
     context "when a black pawn's symbol is called" do
       it "returns a black pawn symbol" do
