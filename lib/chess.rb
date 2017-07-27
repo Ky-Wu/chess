@@ -96,6 +96,8 @@ class Chess
            @board.square(coordinates).color == @board.current_color
            return coordinates
            break
+        else
+          puts "You can't select that square."
         end
       else
         case input
@@ -136,6 +138,8 @@ class Chess
         if moving_piece.possible_moves.include?(coords)
           make_move(moving_piece_coords, coords)
           break
+        else
+          puts "You can't move there."
         end
       else
         case input
