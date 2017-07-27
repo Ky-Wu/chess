@@ -2,7 +2,7 @@ require './chess.rb'
 class Piece
   include BasicSerializable
   attr_accessor :color, :coordinates
-  
+
   def initialize(color, coordinates)
     @color = color
     @coordinates = coordinates
@@ -99,7 +99,7 @@ class Pawn < Piece
   end
 
   def symbol
-    @color == "w" ? "\u2659" : "\u265F"
+    @color == "w" ? "\u265F" : "\u2659"
   end
 
   def not_moved?
@@ -122,7 +122,7 @@ class Rook < Piece
   end
 
   def symbol
-    @color == "w" ? "\u2656" : "\u265C"
+    @color == "w" ? "\u265C" : "\u2656"
   end
 
 end
@@ -143,7 +143,7 @@ class Knight < Piece
   end
 
   def symbol
-    @color == "w" ? "\u2658" : "\u265E"
+    @color == "w" ? "\u265E" : "\u2658"
   end
 
 end
@@ -155,7 +155,7 @@ class Bishop < Piece
   end
 
   def symbol
-    @color == "w" ? "\u2657" : "\u265D"
+    @color == "w" ? "\u265D" : "\u2657"
   end
 end
 
@@ -166,7 +166,7 @@ class Queen < Piece
   end
 
   def symbol
-    @color == "w" ? "\u2655" : "\u265B"
+    @color == "w" ? "\u265B" : "\u2655"
   end
 end
 
@@ -186,7 +186,7 @@ class King < Piece
   end
 
   def symbol
-    @color == "w" ? "\u2654" : "\u265A"
+    @color == "w" ? "\u265A" : "\u2654"
   end
 end
 

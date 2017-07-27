@@ -19,32 +19,7 @@ end
 class Chess
   include BasicSerializable
 
-  def unserialize(string)
-    obj = @@serializer.parse(string)
-    obj.each do |var, var_string|
-      if var == "@board"
-        @board = Board.new()
-        @board.unserialize(var_string)
-        @board.load
-      else
-      instance_variable_set(var, var_string)
-      end
-    end
-  end
 
-  def serialize
-    obj = {}
-    instance_variables.map do |var|
-      if instance_variable_get(var).is_a?(Board)
-        obj[var] = instance_variable_get(var).serialize
-      elsif instance_variable_get(var).is_a?(Array)
-        obj[var] = instance_variable_get(var).map {|n| n.serialize }
-      else
-        obj[var] = instance_variable_get(var)
-      end
-    end
-    @@serializer.dump obj
-  end
 
 
   def initialize
@@ -59,6 +34,7 @@ class Chess
   def play
     while @playing
       @board.display
+      display_captured_pieces
       get_move
       @board.switch_colors
     end
@@ -352,6 +328,40 @@ class Chess
     elsif check?(moved_piece)
       puts "#{current_player_s} puts the opponent's king in check!"
     end
+  end
+
+  def unserialize(string)
+    obj = @@serializer.parse(string)
+    obj.each do |var, var_string|
+      if var == "@board"
+        @board = Board.new()
+        @board.unserialize(var_string)
+        @board.load
+      else
+      instance_variable_set(var, var_string)
+      end
+    end
+  end
+
+  def serialize
+    obj = {}
+    instance_variables.map do |var|
+      if instance_variable_get(var).is_a?(Board)
+        obj[var] = instance_variable_get(var).serialize
+      elsif instance_variable_get(var).is_a?(Array)
+        obj[var] = instance_variable_get(var).map {|n| n.serialize }
+      else
+        obj[var] = instance_variable_get(var)
+      end
+    end
+    @@serializer.dump obj
+  end
+
+  def display_captured_pieces
+    white_pieces = @captured_white_pieces.map {|piece| piece.symbol}
+    black_pieces = @captured_black_pieces.map {|piece| piece.symbol}
+    puts "Captured white pieces: #{white_pieces.join(" | ")}"
+    puts "Captured black pieces: #{black_pieces.join(" | ")}"
   end
 
 end

@@ -9,7 +9,7 @@ class Board
     64.times { @grid << " "}
     @current_color = "w"
   end
-  
+
   def setup
     (0..7).each do |num|
       replace_square([num, 1], Pawn.new("b", [num, 1]))
